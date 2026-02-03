@@ -62,6 +62,30 @@ def init_db():
     ''')
     
     conn.commit()
+    
+    # Add some demo data if tables are empty
+    cursor.execute('SELECT COUNT(*) FROM events')
+    if cursor.fetchone()[0] == 0:
+        # Sample Events
+        sample_events = [
+            ('Annual Tech Symposium 2026', 'Main Auditorium', '2026-03-15', '10:00', '200'),
+            ('Workshop on GenAI & LLMs', 'Tech Lab 1', '2026-02-20', '14:00', '50'),
+            ('Inter-College Sports Meet', 'Sports Complex', '2026-04-10', '09:00', '500'),
+            ('Cultural Night 2026', 'Open Air Theater', '2026-03-25', '18:30', 'Unlimited')
+        ]
+        cursor.executemany('''
+            INSERT INTO events (name, location, date, time, capacity)
+            VALUES (?, ?, ?, ?, ?)
+        ''', sample_events)
+        
+        # Default Admin User
+        cursor.execute('''
+            INSERT OR IGNORE INTO users (name, email, role)
+            VALUES (?, ?, ?)
+        ''', ('Admin User', 'admin@college.edu', 'admin'))
+        
+        conn.commit()
+    
     conn.close()
 
 # Initialize the database on startup
